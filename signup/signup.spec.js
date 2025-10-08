@@ -1,10 +1,9 @@
 const { test, expect } = require('@playwright/test');
 const { SignupPage } = require('../pages/signupPage');
-const { json } = require('stream/consumers');
 
 let signupPage;
 test.describe('Sign Up Page Tests', () => {
-  
+
     test.beforeEach(async ({ page }) => {
         signupPage = new SignupPage(page);
         await signupPage.goto();
@@ -57,10 +56,10 @@ test.describe('Sign Up Page Tests', () => {
         expect(errors).toContain('email is invalid');
     });
 
-    test('Should show error for short password', async () => {
+    test('Should show error for invalid password', async () => {
         await signupPage.signup('shalu', 'shalu@example.com', '123');
         const errors = await signupPage.page.locator('.error-messages li').allTextContents();
-        expect(errors).toContain('password is too short');
+        expect(errors).toContain('password is incorrect');
     });
     //  Successful Signup with API Response
     test('Sign up should return 201 and include token in response', async ({ page }) => {
@@ -76,6 +75,15 @@ test.describe('Sign Up Page Tests', () => {
         console.log(body);
         expect(body.user).toHaveProperty('token');
         expect(body.user.email).toBe('testuser2@example.com');
+    });
+
+    test('Should navigate to Sign In page when clicking "Have an account?"', async ({ page }) => {
+        // Click the link
+        await page.click('text=Have an account?');
+        // Validate URL and page content
+        await expect(page).toHaveURL('https://demo.realworld.show/#/login');
+        await expect(page.locator('h1')).toHaveText('Sign in');
+        await expect(page.locator('text=Need an account?')).toBeVisible();
     });
 
 
